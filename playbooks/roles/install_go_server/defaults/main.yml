@@ -1,0 +1,5 @@
+go_user: "go"
+go_group: "go"
+go_user_home: "/var/go"
+go_server_http_port: "8153"
+go_server_http_ports: "8154"

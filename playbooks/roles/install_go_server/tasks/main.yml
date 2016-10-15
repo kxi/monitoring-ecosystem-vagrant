@@ -1,0 +1,46 @@
+- name: Add GoCD repo
+  copy:
+    src: gocd.repo
+    dest: /etc/yum.repos.d/gocd.repo
+  become: true
+
+
+- name: Install JDK
+  yum:
+    name: java-1.7.0-openjdk-devel
+    state: present
+  become: true
+
+
+- name: Install Go Server
+  yum:
+    name: go-server
+    state: present
+  become: true
+
+
+- name: Set Up Admin Password File
+  template:
+    src: gousers.j2
+    dest: /var/go/gousers
+    owner: "{{ go_user }}"
+    group: "{{ go_group }}"
+    mode: 0600
+  become: true
+
+
+- name: "Add CD_SVC User Private Key"
+  template:
+    src: "id_rsa.j2"
+    dest: "{{ go_user_home }}/.ssh/id_rsa"
+    owner: "{{ go_user }}"
+    group: "{{ go_group }}"
+    mode: 0600
+  become: true
+
+- name: Set up Go Server Configuration
+  template:
+    src: go-server.j2
+    dest: /etc/default/go-server
+    mode: 0644
+  become: true

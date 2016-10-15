@@ -1,0 +1,18 @@
+#ansible-playbook -i inventory playbooks/system_provision.yml --limit=goagentutl01i1 -e go_master=goserverutl01i1 -e go_master_ip=10.1.52.23 -e '@inventory/secret/cd.yml' --vault-password-file=~/ansible_password
+
+
+- name: Deploy Server
+  hosts: server
+  gather_facts: false
+  become: true
+  roles:
+    - sys_package
+
+
+- name: Deploy Client
+  hosts: client
+  gather_facts: false
+  become: true
+  roles:
+    - sys_package
+    - diamond

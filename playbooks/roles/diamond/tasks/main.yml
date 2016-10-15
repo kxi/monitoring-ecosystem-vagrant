@@ -1,0 +1,139 @@
+- name: Install Diamond Collector | Install Python Packages
+  pip:
+    name: "{{ item }}"
+  with_items:
+    - diamond
+  tags:
+    - test
+
+
+- name: Install Diamond Collector | Remove Default Diamond Configuration
+  file:
+    path: "/etc/init/diamond.conf"
+    state: "absent"
+  tags:
+    - test
+
+
+- name: Install Diamond Collector | Set Up Diamond Init Script
+  copy:
+    src: diamond.initd
+    dest: /etc/init.d/diamond
+    mode: 0755
+  tags:
+    - test
+
+
+- name: Install Diamond Collector | Set Up Diamond Init Script
+  copy:
+    src: diamond.initd
+    dest: /etc/init.d/diamond
+    mode: 0755
+  tags:
+    - test
+
+- name: Install Diamond Collector | Set Up Diamond Configuration Directory
+  file:
+    path: /etc/diamond
+    state: directory
+    mode: 0755
+  tags:
+    - test
+
+
+- name: Install Diamond Collector | Set Up Diamond Configuration Sub Directory
+  file:
+    path: /etc/diamond/{{ item }}
+    state: directory
+    mode: 0755
+  with_items:
+    - collectors
+    - handlers
+    - user_scripts
+  tags:
+    - test
+
+
+- name: Install Diamond Collector | Set Up Diamond Configuration File
+  template:
+    src: diamond.conf.j2
+    dest: /etc/diamond/diamond.conf
+    mode: 0644
+  tags:
+    - test
+
+
+- name: Install Diamond Collector | Set Up Enabled Metrics
+  copy:
+    src: "collectors/{{ item }}.conf"
+    dest: /etc/diamond/collectors/CPUCollector.conf
+    mode: 0644
+  with_items:
+    - CPUCollector
+  tags:
+    - test
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+- name: Add GoCD repo
+  copy:
+    src: gocd.repo
+    dest: /etc/yum.repos.d/gocd.repo
+
+
+- name: Install JDK
+  yum:
+    name: java-1.7.0-openjdk-devel
+    state: present
+
+
+- name: Install Go Agent
+  yum:
+    name: go-agent
+    state: present
+
+
+- name: Set up Go Configuration
+  template:
+    src: go-agent.conf.j2
+    dest: /etc/default/go-agent
+    mode: 0644
+
+
+- name: Change Permission of Go Related Stuff
+  file:
+    path: "{{ item }}"
+    owner: "{{ go_user }}"
+    group: "{{ go_group }}"
+    state: "directory"
+    recurse: yes
+  with_items:
+    - "/usr/share/go-agent"
+    - "/var/log/go-agent"
+    - "/var/lib/go-agent"
+    - "/var/run/go-agent"
+
+
+- name: Customize Init Script
+  copy:
+    src: go-agent.init
+    dest: /etc/init.d/go-agent
+
+
+- name: Restarted Go Agent Service
+  service:
+    name: go-agent
+    state: restarted

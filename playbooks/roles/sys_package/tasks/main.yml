@@ -1,0 +1,31 @@
+- name: Install System Tools
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - vim
+    - python-setuptools
+    - python-devel
+    - gcc
+    - libselinux-python
+  tags:
+    - system_package
+    - test
+
+
+- name: Install Python Pip
+  shell: >
+    easy_install pip
+  tags:
+    - system_package
+    - test
+
+
+- name: Install Python Packages
+  pip:
+    name: "{{ item }}"
+  with_items:
+    - requests
+  tags:
+    - system_package
+    - test
